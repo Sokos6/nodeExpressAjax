@@ -34,14 +34,42 @@ router.get('/count/:abbrev', function (req, res, next) {
     });
 });
 
-router.get('/search/:abbrev', function (req, res, next) {
-    var abbrev = req.params.abbrev;
-    var threshold = req.query.threshold;
-    if (threshold && abbrev.length < Number(threshold)) {
-        res.status(204).send() //204: Success, No Content. 
-        return;
-    }
-    var query = ("SELECT word FROM words " + " WHERE word LIKE '" + abbrev + "%' ORDER BY word ");
+//router.get('/search/:abbrev', function (req, res, next) {
+//    var abbrev = req.params.abbrev;
+//    var threshold = req.query.threshold;
+//    if (threshold && abbrev.length < Number(threshold)) {
+//        res.status(204).send() //204: Success, No Content. 
+//        return;
+//    }
+//    var query = ("SELECT word FROM words " + " WHERE word LIKE '" + abbrev + "%' ORDER BY word ");
+//    db.all(query, function (err, data) {
+//        if (err) {
+//            res.status(500).send("Database Error");
+//        } else {
+//            res.status(200).json(data);
+//        }
+//    })
+//});
+
+router.get('/search/:abbrev', function(req, res, next) {
+  var abbrev = req.params.abbrev;
+  var threshold = req.query.threshold || 3;
+  // Our default, case-INsensitive query clause:
+  var likeClause = "lower(word) LIKE lower('" + abbrev + "%')";
+  // Check for query parameter passed by client
+  var caseSensitive = req.query.caseSensitive;
+  if (caseSensitive === "true") {
+    console.log("Case Sensitive");
+    // Case-sensitive query:
+    likeClause = "word LIKE '" + abbrev + "%'"
+  }
+  if (threshold && abbrev.length < Number(threshold)) {
+    res.status(204).send() //204: Success, No Content.
+    return;
+  }
+  // Use our query clause:
+  var query = ( "SELECT id, word FROM words "
+               +" WHERE " + likeClause + " ORDER BY word ");
     db.all(query, function (err, data) {
         if (err) {
             res.status(500).send("Database Error");
@@ -50,5 +78,4 @@ router.get('/search/:abbrev', function (req, res, next) {
         }
     })
 });
-
 module.exports = router;
