@@ -72,4 +72,18 @@ window.addEventListener("load", function () {
         xhr.responseType = 'json';
         xhr.send();
     });
+
+    var createwordevent = function () {
+        var xhrc = new XMLHttpRequest();
+        var uric = "/wordsapi/v2/dictionary/";
+        var jsonword = {
+            "word": searchWord.value
+        };
+        var json = JSON.stringify(jsonword)
+        xhrc.onreadystatechange = function () {}
+        xhrc.open("POST", uric);
+        xhrc.responseType = 'json';
+        xhrc.setRequestHeader("Content-type", "application/json");
+        xhrc.send(json);
+    };
 });
