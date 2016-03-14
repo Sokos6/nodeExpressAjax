@@ -3,6 +3,14 @@ var router = express.Router();
 var sqlite3 = require('sqlite3');
 var db = new sqlite3.Database('databases/words.sqlite');
 db.run("PRAGMA case_sensitive_like = true");
+
+var Twitter = require('twitter');
+
+var credentials = require("../.credentials.js");
+var twitParams = credentials.twitParams;
+var twitClient = new Twitter(credentials.twitCredentials);
+
+
 router.get('/', function (req, res, next) {
     var count = 0;
     db.get("SELECT COUNT(*) AS tot FROM words", function (err, row) {
@@ -89,6 +97,10 @@ router.get('/dictionary/:wordId', function (req, res, next) {
         }
     })
 })
+
+router.get('/dictionary/:wordId', function (req, res, next) {
+    res.status(200).json(res.wordData);
+}
 
 router.delete('/dictionary/:wordId', function (req, res, next) {
     var wordId = req.params.wordId;
